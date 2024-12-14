@@ -76,6 +76,17 @@ function diff(oldVNode: vNode | undefined, newVNode: vNode | undefined): Patch {
         }
     }
 
+    if (typeof oldVNode !== "string" && typeof newVNode !== "string") {
+        const propsDiff = diffProps(oldVNode.props || {}, newVNode.props || {});
+        const childrenDiff = diffChildren(oldVNode.children || [], newVNode.children || []);
+        
+        return {
+            type: "UPDATE",
+            props: propsDiff,
+            children: childrenDiff
+        }
+    }
+
     return {
         type: "UPDATE",
         props: [],
@@ -118,3 +129,18 @@ function diffChildren(oldChildren: vNode[] = [], newChildren: vNode[] = []): Pat
 
     return patches;
 }
+
+const oldVNode: vNode = {
+  type: 'div',
+  props: { id: 'container', onclick: () => console.log('Old click') },
+  children: ['Hello']
+};
+
+const newVNode: vNode = {
+  type: 'div',
+  props: { id: 'container', onclick: () => console.log('New click') },
+  children: ['Hello, world!']
+};
+
+const patches = diff(oldVNode, newVNode);
+console.log(patches);
