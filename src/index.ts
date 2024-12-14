@@ -107,3 +107,14 @@ function diffProps(oldProps: { [key: string]: string | ((event: Event) => void)}
 
     return patches;
 }
+
+function diffChildren(oldChildren: vNode[] = [], newChildren: vNode[] = []): Patch[] {
+    const patches: Patch[] = [];
+    const maxLen = Math.max(oldChildren.length, newChildren.length);
+
+    for (let i = 0; i < maxLen; ++i) {
+        patches.push(diff(oldChildren[i], newChildren[i]));
+    }
+
+    return patches;
+}
