@@ -82,3 +82,28 @@ function diff(oldVNode: vNode | undefined, newVNode: vNode | undefined): Patch {
         children: []
     }
 }
+
+function diffProps(oldProps: { [key: string]: string | ((event: Event) => void)}, newProps: { [key: string]: string | ((event: Event) => void) }): PropPatch[] {
+    const patches: PropPatch[] = [];
+
+    for (const [k,v] of Object.entries(newProps)) {
+        if (oldProps[k] !== k) {
+            patches.push({
+                type: "SET_PROP",
+                key: k,
+                value: v,
+            });
+        }
+    }
+
+    for (const k in oldProps) {
+        if (!(k in newProps)) {
+            patches.push({
+                type: "REMOVE_PROP",
+                key: k,
+            });
+        }
+    }
+
+    return patches;
+}
