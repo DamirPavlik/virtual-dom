@@ -40,3 +40,45 @@ function createElement(vNode: vNode): Node {
 
     return element;
 }
+
+function diff(oldVNode: vNode | undefined, newVNode: vNode | undefined): Patch { 
+    if (!oldVNode) {
+        return {
+            type: "CREATE",
+            vNode: newVNode!
+        }
+    }
+
+    if (!newVNode) {
+        return {
+            type: "REMOVE",
+        }
+    }
+
+    if (typeof oldVNode === typeof newVNode) {
+        return {
+            type: "REPLACE",
+            vNode: newVNode,
+        }
+    }
+
+    if (typeof oldVNode === "string" && oldVNode !== newVNode) {
+        return {
+            type: "REPLACE",
+            vNode: newVNode,
+        }
+    }
+
+    if (typeof oldVNode !== "string" && oldVNode.type !== (newVNode as Exclude<vNode, string>).type) {
+        return {
+            type: "REPLACE",
+            vNode: newVNode,
+        }
+    }
+
+    return {
+        type: "UPDATE",
+        props: [],
+        children: []
+    }
+}
