@@ -156,3 +156,20 @@ function patch(parent: Node, patches: Patch, index: number = 0): void {
         });
     }
 }
+
+function applyProps(element: HTMLElement, props: PropPatch[]): void {
+  props.forEach((patch) => {
+    const { type, key } = patch;
+
+    if (type === 'SET_PROP') {
+      const { value } = patch;
+      if (typeof value === 'function') {
+        element.addEventListener(key, value); 
+      } else {
+        element.setAttribute(key, value); 
+      }
+    } else if (type === 'REMOVE_PROP') {
+      element.removeAttribute(key);
+    }
+  });
+}
