@@ -130,17 +130,29 @@ function diffChildren(oldChildren: vNode[] = [], newChildren: vNode[] = []): Pat
     return patches;
 }
 
-const oldVNode: vNode = {
-  type: 'div',
-  props: { id: 'container', onclick: () => console.log('Old click') },
-  children: ['Hello']
-};
+function patch(parent: Node, patches: Patch, index: number = 0): void {
+    if (!patches) {
+        return;
+    }
 
-const newVNode: vNode = {
-  type: 'div',
-  props: { id: 'container', onclick: () => console.log('New click') },
-  children: ['Hello, world!']
-};
+    const child = parent.childNodes[index] as HTMLElement;
 
-const patches = diff(oldVNode, newVNode);
-console.log(patches);
+    if (patches.type === "CREATE") {
+        parent.appendChild(createElement(patches.vNode));
+    }
+
+    if (patches.type === "REMOVE") {
+        parent.removeChild(child);
+    }
+
+    if (patches.type === "REPLACE") {
+        parent.replaceChild(createElement(patches.vNode), child);
+    }
+
+    if (patches.type === "UPDATE") {
+        applyProps(child, patches.props);
+        patches.children.forEach((childPatch, i) => {
+            patch(child, childPatch, i);
+        });
+    }
+}
