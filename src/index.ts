@@ -33,10 +33,12 @@ function createElement(vNode: vNode): Node {
             }
         }
     }
-
-    (vNode.children || []).forEach(child => {
-        element.appendChild(createElement(child));
-    })
+    
+    if (vNode.children) {
+        vNode.children.forEach(child => {
+            element.appendChild(createElement(child));
+        })
+    }
 
     return element;
 }
