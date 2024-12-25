@@ -4,6 +4,20 @@ type vNode = | string | {
     children?: vNode[]; 
 };
 
+type Patch = | {
+    type: "CREATE",
+    vNode: vNode,
+} | {
+    type: "REMOVE",
+} | {
+    type: "REPLACE",
+    vNode: vNode
+} | {
+    type: "UPDATE",
+    props: PropPatch[],
+    children: Patch[],
+}
+
 type PropPatch = | {
     type: "SET_PROP",
     key: string,
