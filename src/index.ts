@@ -74,6 +74,37 @@ function levenshtein(a: vNode[], b:vNode[]): number[][] {
     return dp;
 }
 
+function areNodesEqual(a: vNode, b: vNode): boolean {
+    if (typeof a === "string" || typeof b === "string") {
+        return a === b;
+    }
+    return a.type === b.type && JSON.stringify(a.props) === JSON.stringify(b.props);
+}
+
+function backtrackChanges(dp: number[][], a: vNode[], b: vNode[]): Patch[] {
+    const changes: Patch[] = [];
+    let i = a.length;
+    let j = b.length;
+
+    while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && areNodesEqual(a[i - 1], b[j - 1])) {
+            i--; j--;
+        } else if (i > 0 && (j === 0 || dp[i][j] === dp[i - 1][j] + 1)) {
+            changes.push({type: "REMOVE"});
+            i--;
+        } else if (j > 0 && (i === 0 || dp[i][j] === dp[i][j-1] + 1)) {
+            changes.push({type: "CREATE", vNode: b[j - 1]});
+            j--;
+        } else {
+            changes.push({type: "REPLACE", vNode: b[j - 1]});
+            i--;
+            j--;
+        }
+    }
+
+    return changes.reverse();
+}
+
 function diff(oldVNode: vNode | undefined, newVNode: vNode | undefined): Patch { 
     if (!oldVNode) {
         return {
