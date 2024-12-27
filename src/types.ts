@@ -1,5 +1,5 @@
 type vNode = | string | {
-    type: keyof HTMLElementTagNameMap; 
+    type: keyof HTMLElementTagNameMap | "Fragment"; 
     props?: { [key: string]: string | ((event: Event) => void) }; 
     children?: vNode[]; 
 };

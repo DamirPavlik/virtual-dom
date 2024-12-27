@@ -6,9 +6,17 @@ function setDocument(doc: any) {
     globalDocument = doc;
 }
 
-function createElement(vNode: any) {
+function createElement(vNode: vNode) {
     if (typeof vNode === "string") {
         return globalDocument.createTextNode(vNode);
+    }
+
+    if (vNode.type === "Fragment") {
+        const fragment = globalDocument.createDocumentFragment();
+        vNode.children?.forEach((child: any) => {
+            fragment.appendChild(createElement(child));
+        });
+        return fragment;
     }
 
     const element = globalDocument.createElement(vNode.type);
