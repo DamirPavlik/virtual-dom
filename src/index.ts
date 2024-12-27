@@ -1,32 +1,32 @@
 let globalDocument:any = typeof document !== "undefined" ? document : null;
 
 function setDocument(doc: any) {
-  globalDocument = doc;
+    globalDocument = doc;
 }
 
 function createElement(vNode: any) {
-  if (typeof vNode === "string") {
-    return globalDocument.createTextNode(vNode);
-  }
-
-  const element = globalDocument.createElement(vNode.type);
-  if (vNode.props) {
-    for (const [k, v] of Object.entries(vNode.props)) {
-      if (typeof v === "function") {
-        element.addEventListener(k, v);
-      } else {
-        element.setAttribute(k, v);
-      }
+    if (typeof vNode === "string") {
+        return globalDocument.createTextNode(vNode);
     }
-  }
 
-  if (vNode.children) {
-    vNode.children.forEach((child: any) => {
-      element.appendChild(createElement(child));
-    });
-  }
+    const element = globalDocument.createElement(vNode.type);
+    if (vNode.props) {
+        for (const [k, v] of Object.entries(vNode.props)) {
+            if (typeof v === "function") {
+                element.addEventListener(k, v);
+            } else {
+                element.setAttribute(k, v);
+            }
+        }
+    }
 
-  return element;
+    if (vNode.children) {
+        vNode.children.forEach((child: any) => {
+        element.appendChild(createElement(child));
+        });
+    }
+
+    return element;
 }
 
 function levenshtein(a: vNode[], b:vNode[]): number[][] {
