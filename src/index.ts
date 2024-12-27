@@ -17,31 +17,37 @@ const vNode: vNode = {
     ]
 }
 
-function createElement(vNode: vNode): Node {
-    if (typeof vNode === "string") {
-        return document.createTextNode(vNode);
-    }
+let globalDocument:any = typeof document !== "undefined" ? document : null;
 
-    let element = document.createElement(vNode.type);
-
-    if (vNode.props) {
-        for(const [k, v] of Object.entries(vNode.props)) {
-            if (typeof v === "function") {
-                element.addEventListener(k, v as EventListener);
-            } else {
-                element.setAttribute(k, v);
-            }
-        }
-    }
-    
-    if (vNode.children) {
-        vNode.children.forEach(child => {
-            element.appendChild(createElement(child));
-        })
-    }
-
-    return element;
+function setDocument(doc: any) {
+  globalDocument = doc;
 }
+
+function createElement(vNode: any) {
+  if (typeof vNode === "string") {
+    return globalDocument.createTextNode(vNode);
+  }
+
+  const element = globalDocument.createElement(vNode.type);
+  if (vNode.props) {
+    for (const [k, v] of Object.entries(vNode.props)) {
+      if (typeof v === "function") {
+        element.addEventListener(k, v);
+      } else {
+        element.setAttribute(k, v);
+      }
+    }
+  }
+
+  if (vNode.children) {
+    vNode.children.forEach((child: any) => {
+      element.appendChild(createElement(child));
+    });
+  }
+
+  return element;
+}
+
 
 function diff(oldVNode: vNode | undefined, newVNode: vNode | undefined): Patch { 
     if (!oldVNode) {
@@ -175,3 +181,5 @@ function applyProps(element: HTMLElement, props: PropPatch[]): void {
     }
   });
 }
+
+export { createElement, diff, patch, applyProps, setDocument };
