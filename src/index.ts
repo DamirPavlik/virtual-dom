@@ -1,22 +1,3 @@
-const vNode: vNode = {
-    type: "div",
-    props: {
-        "id": "something"
-    },
-    children: [
-        {
-            type: "h1",
-            props: {},
-            children: ["Hello World"]
-        },
-        {
-            type: "p",
-            props: {},
-            children: ["Virtual DOM"]
-        },
-    ]
-}
-
 let globalDocument:any = typeof document !== "undefined" ? document : null;
 
 function setDocument(doc: any) {
@@ -184,14 +165,8 @@ function diffProps(oldProps: { [key: string]: string | ((event: Event) => void)}
 }
 
 function diffChildren(oldChildren: vNode[] = [], newChildren: vNode[] = []): Patch[] {
-    const patches: Patch[] = [];
-    const maxLen = Math.max(oldChildren.length, newChildren.length);
-
-    for (let i = 0; i < maxLen; ++i) {
-        patches.push(diff(oldChildren[i], newChildren[i]));
-    }
-
-    return patches;
+    const dp = levenshtein(oldChildren, newChildren);
+    return backtrackChanges(dp, oldChildren, newChildren);
 }
 
 function patch(parent: Node, patches: Patch, index: number = 0): void {
