@@ -1,17 +1,21 @@
 const { JSDOM } = require("jsdom");
-const { createElement, setDocument, diff, patch } = require("../index");
+const { createElement, setDocument, diff, enqueuePatch } = require("../index");
 const fs = require("fs");
+
+if (typeof requestAnimationFrame === "undefined") {
+  global.requestAnimationFrame = (callback) => setTimeout(callback, 0);
+}
 
 function performanceTest() {
   const { document } = new JSDOM(`<!DOCTYPE html><body></body>`).window;
-  setDocument(document); // Set the global document for the virtual DOM functions.
+  setDocument(document); 
 
-  const iterations = 1000;
+  const iterations = 10000;
 
   const oldVNode = {
     type: "div",
     props: { id: "root" },
-    children: Array.from({ length: 1000 }, (_, i) => ({
+    children: Array.from({ length: 10000 }, (_, i) => ({
       type: "p",
       props: { class: "item" + i },
       children: [`Item ${i}`],
@@ -21,7 +25,7 @@ function performanceTest() {
   const newVNode = {
     type: "div",
     props: { id: "root" },
-    children: Array.from({ length: 1000 }, (_, i) => ({
+    children: Array.from({ length: 10000 }, (_, i) => ({
       type: "p",
       props: { class: "item" + i },
       children: [`Updated Item ${i}`],
@@ -43,8 +47,9 @@ function performanceTest() {
     const diffEnd = performance.now();
 
     const patchStart = performance.now();
-    patch(container, patches);
+    enqueuePatch(container, patches);
     const patchEnd = performance.now();
+    console.log(i);
 
     totalDiffTime += diffEnd - diffStart;
     totalPatchTime += patchEnd - patchStart;
@@ -53,9 +58,9 @@ function performanceTest() {
   const averageDiffTime = (totalDiffTime / iterations).toFixed(2);
   const averagePatchTime = (totalPatchTime / iterations).toFixed(2);
 
-  const result = `Average diff time: ${averageDiffTime} ms\nAverage patch time: ${averagePatchTime} ms\n`;
-  fs.writeFileSync("performance.txt", result, "utf8");
-  console.log("Performance results written to performance.txt");
+  const result = `Run at ${new Date().toISOString()}:\nAverage diff time: ${averageDiffTime} ms\nAverage patch time: ${averagePatchTime} ms\n\n`;
+  fs.appendFileSync("performance.txt", result, "utf8"); 
+  console.log("Performance results appended to performance.txt");
 }
 
 performanceTest();
