@@ -1,4 +1,6 @@
 let globalDocument:any = typeof document !== "undefined" ? document : null;
+let patchQueue: {parent: Node; patches: Patch; index: number}[] = [];
+let isProcessing = false;
 
 function setDocument(doc: any) {
     globalDocument = doc;
@@ -169,7 +171,25 @@ function diffChildren(oldChildren: vNode[] = [], newChildren: vNode[] = []): Pat
     return backtrackChanges(dp, oldChildren, newChildren);
 }
 
-function patch(parent: Node, patches: Patch, index: number = 0): void {
+function enqueuePatch(parent: Node, patches: Patch, index: number = 0): void {
+    patchQueue.push({ parent, patches, index });
+    if (!isProcessing) {
+        isProcessing = true;
+        requestAnimationFrame(() => {
+            processPatchQueue();
+            isProcessing = false;
+        });
+    }
+}
+
+function processPatchQueue(): void { 
+    while (patchQueue.length > 0) {
+        const { parent, patches, index} = patchQueue.shift()!;
+        applyPatch(parent, patches, index);
+    }
+}
+
+function applyPatch(parent: Node, patches: Patch, index: number = 0): void {
     if (!patches) {
         return;
     }
@@ -191,7 +211,7 @@ function patch(parent: Node, patches: Patch, index: number = 0): void {
     if (patches.type === "UPDATE") {
         applyProps(child, patches.props);
         patches.children.forEach((childPatch, i) => {
-            patch(child, childPatch, i);
+            enqueuePatch(child, childPatch, i);
         });
     }
 }
@@ -213,4 +233,4 @@ function applyProps(element: HTMLElement, props: PropPatch[]): void {
   });
 }
 
-export { createElement, diff, patch, applyProps, setDocument };
+export { createElement, diff, enqueuePatch, applyProps, setDocument };
