@@ -23,8 +23,13 @@ function createElement(vNode: vNode) {
 
     if (vNode.props) {
         for (const [k, v] of Object.entries(vNode.props)) {
-            if (typeof v === "function") {
-                element.addEventListener(k, v);
+            if (typeof v === "function" && k.startsWith("on")) {
+                const eventType = k.slice(2).toLowerCase();
+                element.addEventListener(eventType, (e: Event) => {
+                    if (e.target === element) {
+                        v(e);
+                    }
+                })
             } else {
                 element.setAttribute(k, v);
             }
@@ -33,7 +38,7 @@ function createElement(vNode: vNode) {
 
     if (vNode.children) {
         vNode.children.forEach((child: any) => {
-        element.appendChild(createElement(child));
+            element.appendChild(createElement(child));
         });
     }
 
@@ -276,6 +281,8 @@ function applyProps(element: HTMLElement, props: PropPatch[]): void {
 }
 
 export { createElement, diff, enqueuePatch, applyProps, setDocument };
+
+// Example:
 const oldChildren: vNode[] = [
     { type: "li", key: "1", props: {}, children: ["Item 1"] },
     { type: "li", key: "2", props: {}, children: ["Item 2"] },
@@ -286,5 +293,17 @@ const newChildren: vNode[] = [
     { type: "li", key: "2", props: {}, children: ["Updated Item 2"] },
     { type: "li", key: "4", props: {}, children: ["Item 4"] },
 ];
+
 const patches = diffChildren(oldChildren, newChildren);
 console.log(patches);
+
+const vNodes: vNode[] = [
+  { type: "li", key: "1", props: { onClick: (e: Event) => alert("Item 1 clicked!") }, children: ["Item 1"] },
+  { type: "li", key: "2", props: { onClick: (e: Event) => alert("Item 2 clicked!") }, children: ["Item 2"] },
+  { type: "li", key: "3", props: { onClick: (e: Event) => alert("Item 3 clicked!") }, children: ["Item 3"] },
+];
+
+const parentVNode: vNode = { type: "ul", props: {}, children: vNodes };
+
+const listElement = createElement(parentVNode);
+console.log(listElement);
