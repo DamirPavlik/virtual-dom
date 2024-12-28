@@ -3,7 +3,7 @@ const { createElement, setDocument, diff, enqueuePatch } = require("../index");
 const fs = require("fs");
 
 if (typeof requestAnimationFrame === "undefined") {
-  global.requestAnimationFrame = (callback) => setTimeout(callback, 0);
+    global.requestAnimationFrame = (callback) => setTimeout(callback, 0);
 }
 
 function performanceTest() {
@@ -59,7 +59,7 @@ function performanceTest() {
     const averageDiffTime = (totalDiffTime / BigInt(iterations)).toString();
     const averagePatchTime = (totalPatchTime / BigInt(iterations)).toString();
 
-    const result = `Run at ${new Date().toISOString()}:\nAverage diff time: ${averageDiffTime} ms\nAverage patch time: ${averagePatchTime} ns\n\n`;
+    const result = `Run at ${new Date().toISOString()}:\nAverage diff time: ${averageDiffTime} ns\nAverage patch time: ${averagePatchTime} ns\n\n`;
     fs.appendFileSync("performance.txt", result, "utf8"); 
     console.log("Performance results appended to performance.txt");
 }
