@@ -169,8 +169,48 @@ function diffProps(oldProps: Record<string, any>, newProps: Record<string, any>)
 }
 
 function diffChildren(oldChildren: vNode[] = [], newChildren: vNode[] = []): Patch[] {
-    const dp = levenshtein(oldChildren, newChildren);
-    return backtrackChanges(dp, oldChildren, newChildren);
+    const oldKeyed = new Map<string, { child: vNode; index: number }>(
+        oldChildren.map((child, i) => [
+            typeof child !== "string" && child.key ? child.key : i.toString(),
+            { child, index: i }
+        ])
+    );
+
+    const newKeyed = new Map<string, { child: vNode; index: number }>(
+        newChildren.map((child, i) => [
+            typeof child !== "string" && child.key ? child.key : i.toString(),
+            { child, index: i }
+        ])
+    );
+
+    const patches: Patch[] = [];
+
+    newChildren.forEach((newChild, newIndex) => {
+        const key = typeof newChild !== "string" && newChild.key ? newChild.key : newIndex.toString();
+
+        if (oldKeyed.has(key)) {
+            const { child: oldChild } = oldKeyed.get(key)!;
+            patches.push(diff(oldChild, newChild));
+            oldKeyed.delete(key);
+        } else {
+            patches.push({ type: "CREATE", vNode: newChild });
+        }
+    });
+
+    oldKeyed.forEach(({ child }) => {
+        patches.push({ type: "REMOVE" });
+    });
+
+    const oldNonKeyed = oldChildren.filter((child) => typeof child !== "string" && !child.key);
+    const newNonKeyed = newChildren.filter((child) => typeof child !== "string" && !child.key);
+
+    if (oldNonKeyed.length > 0 || newNonKeyed.length > 0) {
+        const dp = levenshtein(oldNonKeyed, newNonKeyed);
+        const reorderingPatches = backtrackChanges(dp, oldNonKeyed, newNonKeyed);
+        patches.push(...reorderingPatches);
+    }
+
+    return patches;
 }
 
 function enqueuePatch(parent: Node, patches: Patch, index: number = 0): void {
@@ -236,3 +276,15 @@ function applyProps(element: HTMLElement, props: PropPatch[]): void {
 }
 
 export { createElement, diff, enqueuePatch, applyProps, setDocument };
+const oldChildren: vNode[] = [
+    { type: "li", key: "1", props: {}, children: ["Item 1"] },
+    { type: "li", key: "2", props: {}, children: ["Item 2"] },
+    { type: "li", key: "3", props: {}, children: ["Item 3"] },
+];
+const newChildren: vNode[] = [
+    { type: "li", key: "1", props: {}, children: ["Item 1"] },
+    { type: "li", key: "2", props: {}, children: ["Updated Item 2"] },
+    { type: "li", key: "4", props: {}, children: ["Item 4"] },
+];
+const patches = diffChildren(oldChildren, newChildren);
+console.log(patches);

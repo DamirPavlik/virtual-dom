@@ -1,8 +1,9 @@
-type vNode = | string | {
+type vNode = | string | { 
     type: keyof HTMLElementTagNameMap | "Fragment"; 
+    key?: string; 
     props?: { [key: string]: string | ((event: Event) => void) }; 
-    children?: vNode[]; 
-};
+    children?: vNode[] 
+}
 
 type Patch = | {
     type: "CREATE",
