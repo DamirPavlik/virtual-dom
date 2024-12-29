@@ -281,29 +281,3 @@ function applyProps(element: HTMLElement, props: PropPatch[]): void {
 }
 
 export { createElement, diff, enqueuePatch, applyProps, setDocument };
-
-// Example:
-const oldChildren: vNode[] = [
-    { type: "li", key: "1", props: {}, children: ["Item 1"] },
-    { type: "li", key: "2", props: {}, children: ["Item 2"] },
-    { type: "li", key: "3", props: {}, children: ["Item 3"] },
-];
-const newChildren: vNode[] = [
-    { type: "li", key: "1", props: {}, children: ["Item 1"] },
-    { type: "li", key: "2", props: {}, children: ["Updated Item 2"] },
-    { type: "li", key: "4", props: {}, children: ["Item 4"] },
-];
-
-const patches = diffChildren(oldChildren, newChildren);
-console.log(patches);
-
-const vNodes: vNode[] = [
-  { type: "li", key: "1", props: { onClick: (e: Event) => alert("Item 1 clicked!") }, children: ["Item 1"] },
-  { type: "li", key: "2", props: { onClick: (e: Event) => alert("Item 2 clicked!") }, children: ["Item 2"] },
-  { type: "li", key: "3", props: { onClick: (e: Event) => alert("Item 3 clicked!") }, children: ["Item 3"] },
-];
-
-const parentVNode: vNode = { type: "ul", props: {}, children: vNodes };
-
-const listElement = createElement(parentVNode);
-console.log(listElement);
