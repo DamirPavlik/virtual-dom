@@ -281,3 +281,35 @@ function applyProps(element: HTMLElement, props: PropPatch[]): void {
 }
 
 export { createElement, diff, enqueuePatch, applyProps, setDocument };
+
+const oldVNode: vNode = {
+    type: "div",
+    props: { class: "container" },
+    children: [
+        { type: "h1", props: { class: "title" }, children: ["Old Title"] },
+        { type: "p", props: {}, children: ["This is old content."] },
+    ],
+};
+
+const newVNode: vNode = {
+    type: "div",
+    props: { class: "container" },
+    children: [
+        { type: "h1", props: { class: "title" }, children: ["New Title"] },
+        { type: "p", props: {}, children: ["This is updated content."] },
+        { type: "p", props: { class: "new" }, children: ["This is a new paragraph."] },
+    ],
+};
+
+// Set a mock document if not running in a browser
+setDocument(globalThis.document || { createElement: () => {}, createTextNode: () => {}, createDocumentFragment: () => {} });
+
+// Create the initial DOM element
+const parent = createElement(oldVNode);
+console.log("Initial DOM:", parent);
+
+// Compute the diff and apply patches
+const patches = diff(oldVNode, newVNode);
+console.log("Computed patches:", patches);
+
+enqueuePatch(parent as Node, patches);
