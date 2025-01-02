@@ -301,14 +301,11 @@ const newVNode: vNode = {
     ],
 };
 
-// Set a mock document if not running in a browser
 setDocument(globalThis.document || { createElement: () => {}, createTextNode: () => {}, createDocumentFragment: () => {} });
 
-// Create the initial DOM element
 const parent = createElement(oldVNode);
 console.log("Initial DOM:", parent);
 
-// Compute the diff and apply patches
 const patches = diff(oldVNode, newVNode);
 console.log("Computed patches:", patches);
 
